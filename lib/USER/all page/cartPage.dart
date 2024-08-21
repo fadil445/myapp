@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:myapp/USER/all%20page/cartmodel.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:midtrans_sdk/midtrans_sdk.dart'; // Import Midtrans SDK jika perlu
+
+MidtransFlutter({required String clientKey}) {}
 
 class CartPage extends StatelessWidget {
   @override

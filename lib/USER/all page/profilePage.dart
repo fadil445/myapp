@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:myapp/USER/Screen/LoginScreen.dart';
 import 'package:myapp/USER/all%20page/profilesetting.dart';
-import 'dart:io';
 
 class Profilepage extends StatefulWidget {
   const Profilepage();
@@ -27,6 +27,9 @@ class _ProfilepageState extends State<Profilepage> {
           });
         }
         break;
+      case "Notification":
+        // This will be handled by the ExpansionTile
+        break;
       case "Logout":
         print("Logging out");
         Navigator.push(
@@ -43,7 +46,8 @@ class _ProfilepageState extends State<Profilepage> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text("Profil",
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+            style:
+                TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
         centerTitle: true,
         leading: IconButton(
           onPressed: () {
@@ -66,9 +70,9 @@ class _ProfilepageState extends State<Profilepage> {
                     ? FileImage(_profileImage!)
                     : AssetImage('assets/fadli.png'),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               Text(
-                "Muhammad Chafidzul Fadzli",
+                "Muhammad Chafidzul Fadzi",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -86,12 +90,37 @@ class _ProfilepageState extends State<Profilepage> {
                 child: Card(
                   elevation: 4,
                   shadowColor: Colors.black12,
-                  child: ListTile(
-                    leading: Icon(tile.icon),
-                    title: Text(tile.title),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _handleTileTap(tile.title),
-                  ),
+                  child: tile.title == "Notification"
+                      ? ExpansionTile(
+                          leading: Icon(tile.icon),
+                          title: Text(tile.title),
+                          children: [
+                            ListTile(
+                              leading: Icon(Icons.warning_outlined),
+                              title: Text('lengkapi profil anda'),
+                              onTap: () {
+                                // Handle notification 1 tap
+                              },
+                            ),
+                            ListTile(
+                              title: Text('keranjang anda kosong'),
+                              onTap: () {
+                                // Handle notification 2 tap
+                              },
+                            ),
+                            ListTile(
+                              title: Text('cek promo terbaru kami'),
+                              onTap: () {
+                                // Handle notification 3 tap
+                              },
+                            ),
+                          ],
+                        )
+                      : ListTile(
+                          title: Text(tile.title),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => _handleTileTap(tile.title),
+                        ),
                 ),
               );
             },
@@ -115,6 +144,10 @@ List<CustomListTile> customListTiles = [
   CustomListTile(
     icon: Icons.settings_accessibility_outlined,
     title: "Setting",
+  ),
+  CustomListTile(
+    title: "Notification",
+    icon: CupertinoIcons.bell,
   ),
   CustomListTile(
     title: "Logout",
