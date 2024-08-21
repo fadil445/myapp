@@ -27,15 +27,13 @@ class _ProfilepageState extends State<Profilepage> {
           });
         }
         break;
-      case "Notification":
-        // This will be handled by the ExpansionTile
-        break;
       case "Logout":
         print("Logging out");
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
         );
+        break;
     }
   }
 
@@ -90,37 +88,11 @@ class _ProfilepageState extends State<Profilepage> {
                 child: Card(
                   elevation: 4,
                   shadowColor: Colors.black12,
-                  child: tile.title == "Notification"
-                      ? ExpansionTile(
-                          leading: Icon(tile.icon),
-                          title: Text(tile.title),
-                          children: [
-                            ListTile(
-                              leading: Icon(Icons.warning_outlined),
-                              title: Text('lengkapi profil anda'),
-                              onTap: () {
-                                // Handle notification 1 tap
-                              },
-                            ),
-                            ListTile(
-                              title: Text('keranjang anda kosong'),
-                              onTap: () {
-                                // Handle notification 2 tap
-                              },
-                            ),
-                            ListTile(
-                              title: Text('cek promo terbaru kami'),
-                              onTap: () {
-                                // Handle notification 3 tap
-                              },
-                            ),
-                          ],
-                        )
-                      : ListTile(
-                          title: Text(tile.title),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () => _handleTileTap(tile.title),
-                        ),
+                  child: ListTile(
+                    title: Text(tile.title),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _handleTileTap(tile.title),
+                  ),
                 ),
               );
             },
@@ -144,10 +116,6 @@ List<CustomListTile> customListTiles = [
   CustomListTile(
     icon: Icons.settings_accessibility_outlined,
     title: "Setting",
-  ),
-  CustomListTile(
-    title: "Notification",
-    icon: CupertinoIcons.bell,
   ),
   CustomListTile(
     title: "Logout",
