@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:myapp/USER/all%20page/midtrans_sdk.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/USER/all%20page/cartmodel.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-MidtransFlutter({required String clientKey}) {}
 
 class CartPage extends StatelessWidget {
   @override
@@ -19,44 +18,54 @@ class CartPage extends StatelessWidget {
       try {
         // Mengirim permintaan ke backend untuk membuat transaksi
         final response = await http.post(
-          Uri.parse('${dotenv.env['ENDPOINT']}/'), // Endpoint untuk membuat transaksi
+          Uri.parse('${dotenv.env['ENDPOINT']}/midtrans_create'), // Endpoint baru sesuai case 'midtrans'
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Basic ' + base64Encode(utf8.encode('$serverKey:')),
           },
           body: jsonEncode({
             'order_id': 'ORDER-${DateTime.now().millisecondsSinceEpoch}',
-            'amount': cart.total, // Amount in the smallest currency unit (e.g., cents)
+            'gross_amount': cart.total, // Gunakan 'gross_amount' sesuai dengan parameter yang diharapkan
             'payment_type': 'credit_card',
+            'transaction_status': 'pending', // Jika diperlukan, sesuaikan dengan status yang diharapkan
+            'transaction_time': DateTime.now().toIso8601String(), // Jika diperlukan, sesuaikan dengan waktu transaksi
           }),
         );
+
 
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           final transactionToken = data['token'];
 
+          // Inisialisasi Midtrans SDK
+          final midtrans = MidtransSdk(
+            clientKey: clientKey,
+            environment:
+                'sandbox', // Gunakan 'sandbox' untuk pengujian atau 'production' untuk produksi
+          );
+
           // Panggil Midtrans SDK untuk melanjutkan pembayaran
-          final midtrans = MidtransFlutter(clientKey: clientKey);
           midtrans.startPayment(
             token: transactionToken,
-            onSuccess: (result) {
-              print('Payment Success: $result');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Pembayaran berhasil!')),
-              );
+            onPaymentResult: (result) {
+              if (result.isTransactionSuccessful) {
+                print('Payment Success: $result');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Pembayaran berhasil!')),
+                );
+              } else if (result.isTransactionCancelled) {
+                print('Payment Cancelled');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Pembayaran dibatalkan!')),
+                );
+              } else {
+                print('Payment Failure: $result');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Pembayaran gagal!')),
+                );
+              }
             },
-            onFailure: (result) {
-              print('Payment Failure: $result');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Pembayaran gagal!')),
-              );
-            },
-            onCancel: () {
-              print('Payment Cancelled');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Pembayaran dibatalkan!')),
-              );
-            },
+            Midtrans: null,
           );
         } else {
           print('Failed to create transaction');
@@ -110,7 +119,7 @@ class CartPage extends StatelessWidget {
                       title: Text(
                         item.title,
                         style: TextStyle(
-                          fontSize: 19, fontWeight: FontWeight.bold),
+                            fontSize: 19, fontWeight: FontWeight.bold),
                       ),
                       subtitle: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
